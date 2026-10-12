@@ -1,0 +1,34 @@
+
+name: Juntar listas M3U
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  juntar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Preparar arquivo
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          Path("lista-unica.m3u").write_text("#EXTM3U\n", encoding="utf-8")
+          PY
+
+      - name: Salvar resultado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lista-unica.m3u
+          git commit -m "Atualizar lista M3U" || echo "Sem alterações"
+          git push
